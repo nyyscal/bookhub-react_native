@@ -9,6 +9,7 @@ router.post("/",protectRoute, async(req,res)=>{
 
   try {
     const {title,caption,rating,image}= req.body
+    console.log("Header",req.headers)
 
     if(!image || !title || !rating || !caption) return res.status(404).json({message:"Please provide all fields"})
 

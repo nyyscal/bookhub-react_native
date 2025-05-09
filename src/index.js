@@ -11,8 +11,10 @@ const app = express()
 const PORT = process.env.PORT || 3000
 
 job.start()
+app.use(cors( {origin: "*", // for dev only; restrict in production
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"] }))
 app.use(express.json())
-app.use(cors())
 
 app.use("/api/auth",authRoutes)
 app.use("/api/books",bookRoutes)
