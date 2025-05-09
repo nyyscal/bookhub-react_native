@@ -1,25 +1,39 @@
 import jwt from "jsonwebtoken"
 import User from "../models/User.js"
 
+const protectRoute = async (req, res, next) => {
+  try {
+    const authHeader = req.header("Authorization")
 
-const protectRoute = async(req,res,next)=>{
-try {
-  const token = req.header("Authorization").replace("Bearer ","")
-  if(!token) return res.status(401).json({message:"No Token Provided! Unauthorized"})
+    // Check for Bearer token
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "No Token Provided! Unauthorized" })
+    }
 
-    //verify token
-    const decoded = jwt.verify(token,process.env.JET_SECRET)
+    const token = authHeader.replace("Bearer ", "").trim()
 
-    //find the user
+    if (!token) {
+      return res.status(401).json({ message: "No Bearer Token Provided! Unauthorized" })
+    }
+
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+
+    // Find user
     const user = await User.findById(decoded.userId).select("-password")
 
-    if(!user) return res.status(401).json({message:"Invalid Token"})
+    if (!user) {
+      return res.status(401).json({ message: "Invalid Token" })
+    }
 
+    // Attach user to request object
     req.user = user
-} catch (error) {
-  console.log("Error in middleware",error)
-  return res.json(500).json({message:"Internal Server Error!"})
-}
+    next()
+
+  } catch (error) {
+    console.error("Error in middleware:", error.message)
+    return res.status(500).json({ message: "Internal Server Error!" })
+  }
 }
 
 export default protectRoute

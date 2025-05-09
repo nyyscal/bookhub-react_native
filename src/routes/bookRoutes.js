@@ -30,7 +30,7 @@ router.post("/",protectRoute, async(req,res)=>{
     res.status(201).json(newBook)
   } catch (error) {
     console.log("Error in create Book controller",error)
-    return res.json(500).json({message:"Internal Server Error!"})
+    return res.status(500).json({message:"Internal Server Error!"})
   }
 })
 
